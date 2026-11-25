@@ -1,5 +1,5 @@
 import React from 'react';
-import { Lock, Github, Linkedin, Mail } from 'lucide-react';
+import { Lock, ShieldCheck, Github, Linkedin, Mail } from 'lucide-react';
 import { NavSectionId } from './Navbar';
 import { ProfileData } from '../types/portfolio';
 import { Language, translations } from '../i18n/translations';
@@ -8,6 +8,7 @@ interface FooterProps {
   profile: ProfileData;
   lang: Language;
   unreadMessages: number;
+  isAdminAuthenticated: boolean;
   onNavigate: (section: NavSectionId) => void;
   onOpenAdmin: () => void;
 }
@@ -16,6 +17,7 @@ export const Footer: React.FC<FooterProps> = ({
   profile,
   lang,
   unreadMessages,
+  isAdminAuthenticated,
   onNavigate,
   onOpenAdmin,
 }) => {
@@ -117,20 +119,31 @@ export const Footer: React.FC<FooterProps> = ({
             <Mail className="w-4 h-4" />
           </a>
 
-          {/* Secret Admin Lock Icon */}
-          <button
-            type="button"
-            onClick={onOpenAdmin}
-            aria-label={t.footer.adminDashboard}
-            title={
-              unreadMessages > 0
-                ? `${t.footer.adminDashboard} (${unreadMessages})`
-                : t.footer.adminDashboard
-            }
-            className="flex items-center justify-center w-9 h-9 rounded-full bg-transparent border border-slate-200/70 dark:border-blue-500/15 text-slate-400 dark:text-slate-600 hover:border-blue-500/50 hover:text-blue-600 dark:hover:text-cyan-400 transition-colors cursor-pointer"
-          >
-            <Lock className="w-3.5 h-3.5" />
-          </button>
+          {isAdminAuthenticated ? (
+            <button
+              type="button"
+              onClick={onOpenAdmin}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-blue-500/40 bg-blue-50 dark:bg-blue-500/15 text-xs font-semibold text-blue-700 dark:text-blue-300 hover:border-blue-500 hover:text-blue-600 dark:hover:text-white transition-colors cursor-pointer"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400" />
+              <span>{t.nav.adminBtn}</span>
+              {unreadMessages > 0 && (
+                <span className="font-[var(--font-mono)] text-xs tabular-nums">
+                  ({unreadMessages})
+                </span>
+              )}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={onOpenAdmin}
+              aria-label={t.footer.adminDashboard}
+              title={t.footer.adminDashboard}
+              className="flex items-center justify-center w-9 h-9 rounded-full bg-transparent border border-slate-200/70 dark:border-blue-500/15 text-slate-400 dark:text-slate-600 hover:border-blue-500/50 hover:text-blue-600 dark:hover:text-cyan-400 transition-colors cursor-pointer"
+            >
+              <Lock className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
       </div>
     </footer>

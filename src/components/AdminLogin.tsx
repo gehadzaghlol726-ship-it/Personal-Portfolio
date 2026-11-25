@@ -1,30 +1,38 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Eye, EyeOff, Lock, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, Lock, Mail, ShieldCheck } from 'lucide-react';
 import { Language, translations } from '../i18n/translations';
 
 interface AdminLoginProps {
   lang: Language;
+  allowedEmails: string[];
   expectedPassword: string;
-  onSuccess: () => void;
+  onSuccess: (email: string) => void;
   onBackToPortfolio: () => void;
 }
 
 export const AdminLogin: React.FC<AdminLoginProps> = ({
   lang,
+  allowedEmails,
   expectedPassword,
   onSuccess,
   onBackToPortfolio,
 }) => {
   const t = translations[lang];
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password.trim() === expectedPassword) {
+    const normalizedEmail = email.trim().toLowerCase();
+    const isEmailAllowed = allowedEmails.some(
+      (allowed) => allowed.trim().toLowerCase() === normalizedEmail
+    );
+
+    if (isEmailAllowed && password.trim() === expectedPassword) {
       setError('');
-      onSuccess();
+      onSuccess(normalizedEmail);
     } else {
       setError(t.adminLogin.errorInvalid);
     }
@@ -69,6 +77,31 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div>
             <label
+              htmlFor="admin-email"
+              className="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1.5"
+            >
+              {t.adminLogin.emailLabel}
+            </label>
+            <div className="relative">
+              <Mail className="pointer-events-none absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input
+                id="admin-email"
+                type="email"
+                required
+                autoFocus
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (error) setError('');
+                }}
+                placeholder={t.adminLogin.emailPlaceholder}
+                className="w-full ps-10 pe-4 py-3 rounded-xl bg-slate-50 dark:bg-[#030712] border border-slate-300 dark:border-blue-500/30 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500 dark:focus:border-cyan-400 transition-colors"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label
               htmlFor="admin-password"
               className="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1.5"
             >
@@ -79,7 +112,6 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
                 id="admin-password"
                 type={showPassword ? 'text' : 'password'}
                 required
-                autoFocus
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);

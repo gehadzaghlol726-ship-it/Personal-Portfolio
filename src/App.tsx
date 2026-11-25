@@ -16,7 +16,9 @@ import { CvModal } from './components/CvModal';
 import { ScrollProgressBar } from './components/ScrollProgressBar';
 
 const ADMIN_AUTH_KEY = 'gehad_admin_auth';
+const ADMIN_EMAIL_KEY = 'gehad_admin_email';
 const ADMIN_PASSCODE = 'gehad2026';
+const OWNER_EMAILS = ['ghad03296@gmail.com', 'gehadzaghlol726@gmail.com'];
 
 const checkIsAdminPath = (): boolean => {
   if (typeof window === 'undefined') return false;
@@ -121,9 +123,10 @@ function PortfolioShell() {
     }
   };
 
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = (email: string) => {
     try {
       sessionStorage.setItem(ADMIN_AUTH_KEY, 'true');
+      sessionStorage.setItem(ADMIN_EMAIL_KEY, email);
     } catch {
       // ignore storage errors
     }
@@ -133,11 +136,16 @@ function PortfolioShell() {
   const handleLogout = () => {
     try {
       sessionStorage.removeItem(ADMIN_AUTH_KEY);
+      sessionStorage.removeItem(ADMIN_EMAIL_KEY);
     } catch {
       // ignore storage errors
     }
     setIsAdminAuthenticated(false);
   };
+
+  const allowedEmails = Array.from(
+    new Set([...OWNER_EMAILS, portfolio.profile.email.trim().toLowerCase()].filter(Boolean))
+  );
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#030712] text-slate-900 dark:text-slate-100 transition-colors duration-300">
@@ -152,6 +160,9 @@ function PortfolioShell() {
         onOpenCv={() => setIsCvOpen(true)}
         firstName={portfolio.profile.firstName}
         isAdminView={isAdminRoute}
+        isAdminAuthenticated={isAdminAuthenticated}
+        unreadMessages={unreadMessages}
+        onOpenAdmin={navigateToAdmin}
         onExitAdmin={() => navigateToPortfolio()}
       />
 
@@ -164,6 +175,7 @@ function PortfolioShell() {
         ) : (
           <AdminLogin
             lang={lang}
+            allowedEmails={allowedEmails}
             expectedPassword={ADMIN_PASSCODE}
             onSuccess={handleLoginSuccess}
             onBackToPortfolio={() => navigateToPortfolio()}
@@ -210,6 +222,7 @@ function PortfolioShell() {
             profile={portfolio.profile}
             lang={lang}
             unreadMessages={unreadMessages}
+            isAdminAuthenticated={isAdminAuthenticated}
             onNavigate={scrollToSection}
             onOpenAdmin={navigateToAdmin}
           />

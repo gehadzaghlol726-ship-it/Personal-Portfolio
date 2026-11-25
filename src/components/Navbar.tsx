@@ -12,6 +12,7 @@ import {
   Menu,
   X,
   Globe,
+  ShieldCheck,
 } from 'lucide-react';
 import { Language, translations } from '../i18n/translations';
 
@@ -27,6 +28,9 @@ interface NavbarProps {
   onOpenCv: () => void;
   firstName: string;
   isAdminView: boolean;
+  isAdminAuthenticated: boolean;
+  unreadMessages: number;
+  onOpenAdmin: () => void;
   onExitAdmin: () => void;
 }
 
@@ -40,6 +44,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenCv,
   firstName,
   isAdminView,
+  isAdminAuthenticated,
+  unreadMessages,
+  onOpenAdmin,
   onExitAdmin,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -173,6 +180,22 @@ export const Navbar: React.FC<NavbarProps> = ({
             {isDark ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
           </button>
 
+          {isAdminAuthenticated && !isAdminView && (
+            <button
+              type="button"
+              onClick={onOpenAdmin}
+              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap shrink-0 bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-[0_0_20px_rgba(37,99,235,0.45)] hover:shadow-[0_0_28px_rgba(59,130,246,0.65)] transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>{t.nav.adminBtn}</span>
+              {unreadMessages > 0 && (
+                <span className="font-[var(--font-mono)] text-xs tabular-nums px-1.5 py-0.5 rounded-full bg-white/20 text-white">
+                  {unreadMessages}
+                </span>
+              )}
+            </button>
+          )}
+
           <button
             type="button"
             onClick={onOpenCv}
@@ -218,6 +241,24 @@ export const Navbar: React.FC<NavbarProps> = ({
               );
             })}
           </div>
+          {isAdminAuthenticated && !isAdminView && (
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenAdmin();
+              }}
+              className="mt-2.5 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-cyan-500 cursor-pointer"
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>{t.nav.adminBtn}</span>
+              {unreadMessages > 0 && (
+                <span className="font-[var(--font-mono)] text-xs tabular-nums px-1.5 py-0.5 rounded-full bg-white/20">
+                  {unreadMessages}
+                </span>
+              )}
+            </button>
+          )}
           <button
             type="button"
             onClick={() => {
