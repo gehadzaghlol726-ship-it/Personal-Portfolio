@@ -90,6 +90,18 @@ export const initialPortfolioState: PortfolioState = {
       repoUrl: 'https://github.com/gehadzaghlol726-ship-it',
       liveUrl: 'https://github.com/gehadzaghlol726-ship-it',
       featured: true,
+      imageUrl: '/assets/aistudio/WhatsApp_Image_2026-11-25_at_3.50.55_PM_71b46eef.jpeg',
+      gallery: [
+        '/assets/aistudio/WhatsApp_Image_2026-11-25_at_3.50.55_PM_71b46eef.jpeg',
+        '/assets/aistudio/WhatsApp_Image_2026-11-25_at_3.50.55_PM__1__440ce8ad.jpeg',
+        '/assets/aistudio/WhatsApp_Image_2026-11-25_at_3.50.55_PM__2__fc9197cc.jpeg',
+        '/assets/aistudio/WhatsApp_Image_2026-11-25_at_3.50.55_PM__3__5c32bcc2.jpeg',
+        '/assets/aistudio/WhatsApp_Image_2026-11-25_at_3.50.55_PM__4__1f56251e.jpeg',
+        '/assets/aistudio/WhatsApp_Image_2026-11-25_at_3.50.55_PM__5__9d1b7848.jpeg',
+        '/assets/aistudio/WhatsApp_Image_2026-11-25_at_3.50.55_PM__6__cf9f2eb3.jpeg',
+        '/assets/aistudio/WhatsApp_Image_2026-11-25_at_3.52.38_PM_a4dba9f7.jpeg',
+        '/assets/aistudio/WhatsApp_Image_2026-11-25_at_3.52.38_PM__1__920c634b.jpeg',
+      ],
     },
     {
       id: 'proj-3',

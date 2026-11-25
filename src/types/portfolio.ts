@@ -43,6 +43,7 @@ export interface ProjectItem {
   liveUrl: string;
   featured: boolean;
   imageUrl?: string;
+  gallery?: string[];
 }
 
 export type SkillCategory =

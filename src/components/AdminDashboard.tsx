@@ -207,7 +207,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     };
 
     if (editingProjectId) {
-      updateProject({ ...payload, id: editingProjectId });
+      const existingProj = portfolio.projects.find((p) => p.id === editingProjectId);
+      updateProject({
+        ...payload,
+        id: editingProjectId,
+        gallery: existingProj?.gallery,
+      });
     } else {
       addProject(payload);
     }

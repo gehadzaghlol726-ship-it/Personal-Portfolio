@@ -60,7 +60,15 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({
             cvUrl: parsed.profile?.cvUrl ?? initialPortfolioState.profile.cvUrl,
           },
           certifications: parsed.certifications ?? initialPortfolioState.certifications,
-          projects: parsed.projects ?? initialPortfolioState.projects,
+          projects: (parsed.projects ?? initialPortfolioState.projects).map((p) => {
+            const def = initialPortfolioState.projects.find((d) => d.id === p.id);
+            if (!def) return p;
+            return {
+              ...p,
+              imageUrl: p.imageUrl || def.imageUrl,
+              gallery: p.gallery && p.gallery.length > 0 ? p.gallery : def.gallery,
+            };
+          }),
           skills: parsed.skills ?? initialPortfolioState.skills,
           posts: parsed.posts ?? initialPortfolioState.posts,
           messages: parsed.messages ?? initialPortfolioState.messages,

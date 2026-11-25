@@ -1,5 +1,16 @@
 import React, { useState } from 'react';
-import { ArrowUpRight, Github, X, Cpu, Globe, Smartphone, Network } from 'lucide-react';
+import {
+  ArrowUpRight,
+  Github,
+  X,
+  Cpu,
+  Globe,
+  Smartphone,
+  Network,
+  ChevronLeft,
+  ChevronRight,
+  Images,
+} from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { ProjectCategory, ProjectItem } from '../types/portfolio';
 import { initialPortfolioState } from '../data/initialPortfolio';
@@ -21,9 +32,20 @@ const filterOptions: ('All' | ProjectCategory)[] = [
 const ProjectVisualBanner: React.FC<{
   category: ProjectCategory;
   imageUrl?: string;
+  gallery?: string[];
   title: string;
   inModal?: boolean;
-}> = ({ category, imageUrl, title, inModal = false }) => {
+  activeSlide?: number;
+  onSlideChange?: (nextIndex: number) => void;
+}> = ({
+  category,
+  imageUrl,
+  gallery,
+  title,
+  inModal = false,
+  activeSlide = 0,
+  onSlideChange,
+}) => {
   const CategoryIcon =
     category === 'IoT & Hardware'
       ? Cpu
@@ -33,16 +55,20 @@ const ProjectVisualBanner: React.FC<{
       ? Smartphone
       : Globe;
 
-  if (imageUrl) {
+  const slides = gallery && gallery.length > 0 ? gallery : imageUrl ? [imageUrl] : [];
+  const currentSrc = slides[activeSlide] || imageUrl;
+
+  if (currentSrc) {
+    const hasMultiple = slides.length > 1;
     return (
       <div
         className={`relative w-full overflow-hidden rounded-t-2xl bg-[#040B1A] border-b border-blue-500/20 flex items-center justify-center ${
-          inModal ? 'h-72 sm:h-80' : 'h-56'
+          inModal ? 'h-64 sm:h-80' : 'h-56'
         }`}
       >
         {/* Ambient matching backdrop */}
         <img
-          src={imageUrl}
+          src={currentSrc}
           alt=""
           aria-hidden="true"
           referrerPolicy="no-referrer"
@@ -54,14 +80,47 @@ const ProjectVisualBanner: React.FC<{
         />
         {/* Full uncropped foreground project image */}
         <img
-          src={imageUrl}
+          src={currentSrc}
           alt={title}
           referrerPolicy="no-referrer"
-          className="relative z-10 w-full h-full object-contain p-2.5 drop-shadow-[0_8px_24px_rgba(0,0,0,0.5)] transition-transform duration-300 group-hover:scale-[1.03]"
+          className="relative z-10 w-full h-full object-contain p-1.5 drop-shadow-[0_8px_24px_rgba(0,0,0,0.5)] transition-transform duration-300 group-hover:scale-[1.03]"
         />
         <div className="absolute top-3.5 start-3.5 z-20 flex items-center justify-center w-9 h-9 rounded-xl bg-slate-950/75 border border-blue-400/40 text-cyan-300 backdrop-blur-md">
           <CategoryIcon className="w-4 h-4" />
         </div>
+
+        {!inModal && hasMultiple && (
+          <div className="absolute top-3.5 end-3.5 z-20 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-950/80 border border-blue-400/40 text-xs font-[var(--font-mono)] tabular-nums text-blue-200 backdrop-blur-md">
+            <Images className="w-3.5 h-3.5 text-cyan-300" />
+            <span>{slides.length}</span>
+          </div>
+        )}
+
+        {inModal && hasMultiple && onSlideChange && (
+          <>
+            <button
+              type="button"
+              onClick={() =>
+                onSlideChange((activeSlide - 1 + slides.length) % slides.length)
+              }
+              aria-label="Previous screenshot"
+              className="absolute start-3 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-9 h-9 rounded-full bg-slate-950/75 border border-blue-400/40 text-white hover:bg-blue-600 transition-colors cursor-pointer"
+            >
+              <ChevronLeft className="w-5 h-5 rtl:rotate-180" />
+            </button>
+            <button
+              type="button"
+              onClick={() => onSlideChange((activeSlide + 1) % slides.length)}
+              aria-label="Next screenshot"
+              className="absolute end-3 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-9 h-9 rounded-full bg-slate-950/75 border border-blue-400/40 text-white hover:bg-blue-600 transition-colors cursor-pointer"
+            >
+              <ChevronRight className="w-5 h-5 rtl:rotate-180" />
+            </button>
+            <div className="absolute bottom-3 end-3 z-20 px-2.5 py-1 rounded-full bg-slate-950/80 border border-blue-400/40 text-xs font-[var(--font-mono)] tabular-nums text-blue-200 backdrop-blur-md">
+              {activeSlide + 1} / {slides.length}
+            </div>
+          </>
+        )}
       </div>
     );
   }
@@ -158,6 +217,7 @@ const ProjectVisualBanner: React.FC<{
 export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects, lang }) => {
   const [selectedCategory, setSelectedCategory] = useState<'All' | ProjectCategory>('All');
   const [activeProject, setActiveProject] = useState<ProjectItem | null>(null);
+  const [activeSlide, setActiveSlide] = useState(0);
   const t = translations[lang];
   const shouldReduceMotion = useReducedMotion();
 
@@ -270,6 +330,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects, lang
                     <ProjectVisualBanner
                       category={project.category}
                       imageUrl={project.imageUrl}
+                      gallery={project.gallery}
                       title={project.title}
                     />
 
@@ -304,7 +365,10 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects, lang
                   <div className="px-6 pb-6 pt-4 border-t border-slate-200/80 dark:border-blue-500/15 flex items-center justify-between gap-3">
                     <button
                       type="button"
-                      onClick={() => setActiveProject(project)}
+                      onClick={() => {
+                        setActiveSlide(0);
+                        setActiveProject(project);
+                      }}
                       className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-blue-600 text-white hover:bg-blue-500 shadow-[0_0_16px_rgba(37,99,235,0.35)] transition-colors whitespace-nowrap cursor-pointer"
                     >
                       <span>{t.projects.details}</span>
@@ -336,22 +400,49 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects, lang
           aria-modal="true"
           aria-labelledby="project-modal-title"
         >
-          <div className="relative w-full max-w-2xl rounded-2xl bg-white dark:bg-[#071124] border border-slate-200 dark:border-blue-500/35 overflow-hidden shadow-2xl">
+          <div className="relative w-full max-w-2xl rounded-2xl bg-white dark:bg-[#071124] border border-slate-200 dark:border-blue-500/35 overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto">
             <ProjectVisualBanner
               category={activeLocalized.category}
               imageUrl={activeLocalized.imageUrl}
+              gallery={activeLocalized.gallery}
               title={activeLocalized.title}
               inModal
+              activeSlide={activeSlide}
+              onSlideChange={setActiveSlide}
             />
 
             <button
               type="button"
               onClick={() => setActiveProject(null)}
               aria-label={t.projects.closeModal}
-              className="absolute top-4 end-4 p-2 rounded-lg bg-slate-950/60 text-white hover:bg-slate-900 transition-colors cursor-pointer"
+              className="absolute top-4 end-4 z-30 p-2 rounded-lg bg-slate-950/70 text-white hover:bg-slate-900 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
+
+            {activeLocalized.gallery && activeLocalized.gallery.length > 1 && (
+              <div className="px-6 pt-3 pb-1 flex items-center gap-2 overflow-x-auto bg-slate-100/70 dark:bg-[#040B1A] border-b border-slate-200 dark:border-blue-500/20">
+                {activeLocalized.gallery.map((thumbUrl, idx) => (
+                  <button
+                    key={thumbUrl}
+                    type="button"
+                    onClick={() => setActiveSlide(idx)}
+                    aria-label={`${activeLocalized.title} ${idx + 1}`}
+                    className={`relative w-16 h-10 rounded-lg overflow-hidden shrink-0 border-2 transition-all cursor-pointer ${
+                      activeSlide === idx
+                        ? 'border-blue-500 dark:border-cyan-400 scale-105'
+                        : 'border-transparent opacity-60 hover:opacity-100'
+                    }`}
+                  >
+                    <img
+                      src={thumbUrl}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
 
             <div className="p-6 sm:p-8">
               <p className="text-xs font-[var(--font-mono)] text-blue-600 dark:text-blue-400">
